@@ -85,6 +85,8 @@ const TicTacToe = {
       wh_4_2,
       wh_1_5,
     ]),
+    myDeck: new Deck(),
+    player2Deck: new Deck()
   }),
 
   turn: {
@@ -97,11 +99,23 @@ const TicTacToe = {
     deck.shuffle();
   },
   deal: ({ G, ctx }) => {
-    myDeck.top(5);
+    let deck = [...G.gameDeck];
+    let mydeck = [...G.myDeck];
+    let p2deck = [...G.player2Deck];
+
+    // Draw 5 cards from the deck for your hand
+    var drawnCards = deck.draw(5);
+    mydeck.addToBottom(drawnCards);
+
+    // Draw 5 cards from the deck for player2's hand
+    drawnCards = deck.draw(5);
+    p2deck.addToBottom(drawnCards);
   },
   draw: ({ G, ctx }) => {
-    const deck = [...G.gameDeck];
-    myDeck.top(1);
+    let deck = [...G.gameDeck];
+    let mydeck = [...G.myDeck];
+    var cardDrawn = deck.draw(1);
+    mydeck.addToBottom([cardDrawn]);
   },
   ai: {
     enumerate: (G) => {
