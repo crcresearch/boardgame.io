@@ -37,11 +37,11 @@ const Screen = () => {
   const height = 600;
 
   const myCards = [
-    { color: 'red', number: 1 },
-    { color: 'blue', number: 2 },
-    { color: 'green', number: 3 },
-    { color: 'yellow', number: 4 },
-    { color: 'white', number: 5 },
+    { color: 'red', number: 4 },
+    { color: 'yellow', number: 2 },
+    { color: 'white', number: 1 },
+    { color: 'yellow', number: 2 },
+    { color: 'green', number: 5 },
   ];
 
   const otherPlayerCards = [
@@ -63,7 +63,7 @@ const Screen = () => {
       }}
     >
       <Hand width={width} cards={otherPlayerCards} />
-      <Hand width={width} cards />
+      <Hand width={width} cards={myCards} />
     </div>
   );
 };
