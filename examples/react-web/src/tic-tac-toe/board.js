@@ -6,7 +6,7 @@
  * https://opensource.org/licenses/MIT.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import './board.css';
 
@@ -49,11 +49,118 @@ const Hand = ({ cards, width, hidden }) => {
   );
 };
 
-const Screen = ({ playerID }) => {
+const ActionButton = ({ text, onClick }) => {
+  return (
+    <button
+      style={{
+        // backgroundColor: 'violet',
+        width: 80,
+        height: 30,
+        border: 'none',
+      }}
+      onClick={onClick}
+    >
+      {text}
+    </button>
+  );
+};
+
+const ClueButton = ({ color, text, onClick, isActive }) => {
+  const size = 40;
+
+  return (
+    <button
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: color ?? 'violet',
+        border: 'none',
+        opacity: isActive ? 1 : 0.5,
+        boxSizing: 'border-box',
+      }}
+      onClick={onClick}
+      disabled={!isActive}
+    >
+      {text}
+    </button>
+  );
+};
+
+const ClueModal = ({ playerHand, closeModal }) => {
+  const activeColors = new Set(playerHand.map((card) => card.color));
+  const activeLetters = new Set(playerHand.map((card) => card.letter));
+  const allColors = ['red', 'yellow', 'green', 'blue', 'white'];
+  const allLetters = ['A', 'B', 'C', 'D', 'E'];
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(1, 1, 1, 0.5)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: 'absolute',
+        bottom: 0,
+      }}
+      onClick={closeModal}
+    >
+      <div
+        style={{
+          width: '80%',
+          height: '70%',
+          backgroundColor: 'silver',
+          borderRadius: 15,
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2>Give a clue</h2>
+        <div
+          style={{
+            display: 'flex',
+            gap: 5,
+            justifyContent: 'center',
+            margin: 10,
+          }}
+        >
+          {allColors.map((color) => (
+            <ClueButton
+              color={color}
+              onClick={() => {}}
+              isActive={activeColors.has(color)}
+            />
+          ))}
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            gap: 5,
+            justifyContent: 'center',
+            margin: 10,
+          }}
+        >
+          {allLetters.map((letter) => (
+            <ClueButton
+              onClick={() => {}}
+              isActive={activeLetters.has(letter)}
+              text={letter}
+            />
+          ))}
+        </div>
+        <br />
+        <ActionButton text="Send clue" onClick={() => {}} />
+      </div>
+    </div>
+  );
+};
+
+const Screen = ({ playerID, playerTurn }) => {
+  const [clueModalOpen, setClueModalOpen] = useState(false);
+
   const width = 300;
   const height = 600;
-  console.log(playerID);
-  console.log(typeof playerID);
 
   const p0Cards = [
     { color: 'yellow', number: 1, letter: 'A' },
@@ -95,23 +202,49 @@ const Screen = ({ playerID }) => {
       <div>
         <Hand width={width} cards={playerID === '0' ? p1Cards : p0Cards} />
       </div>
-      <div
-        style={{
-          flex: '1 0 auto',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Hand width={width * 0.8} cards={boardCards} />
-      </div>
-      <div>
-        <Hand
-          width={width}
-          cards={playerID === '0' ? p0Cards : p1Cards}
-          hidden
-        />
+      <div style={{ flex: '1 0 auto', display: 'flex', position: 'relative' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            flex: '1 0 auto',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flex: '1 0 auto',
+            }}
+          >
+            {playerID === playerTurn && (
+              <div style={{ display: 'flex', gap: 10, margin: 10 }}>
+                <ActionButton
+                  text="Give clue"
+                  onClick={() => setClueModalOpen(true)}
+                />
+                <ActionButton text="Play card" onClick={() => {}} />
+                <ActionButton text="Discard" onClick={() => {}} />
+              </div>
+            )}
+            <Hand width={width * 0.8} cards={boardCards} />
+          </div>
+          <div>
+            <Hand
+              width={width}
+              cards={playerID === '0' ? p0Cards : p1Cards}
+              hidden
+            />
+          </div>
+        </div>
+        {clueModalOpen && (
+          <ClueModal
+            playerHand={playerID === '0' ? p1Cards : p0Cards}
+            closeModal={() => setClueModalOpen(false)}
+          />
+        )}
       </div>
     </div>
   );
@@ -140,9 +273,11 @@ class Board extends React.Component {
   }
 
   render() {
+    const playerTurn = '0';
+
     return (
       <div style={{ margin: 30 }}>
-        <Screen playerID={this.props.playerID} />
+        <Screen playerID={this.props.playerID} playerTurn={playerTurn} />
       </div>
     );
 
