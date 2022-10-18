@@ -30,9 +30,6 @@ const TicTacToe = {
   name: 'tic-tac-toe',
 
   setup: () => ({
-    cells: new Array(9).fill(null),
-    // cards Yellow Red Blue Green White 1-(3) 2-(2) 3-(2) 4-(2) 5-(1)
-    // color_cardvalue_cardnumber
     gameDeck: new Deck([
       yel_1_1,
       yel_1_2,
@@ -86,7 +83,9 @@ const TicTacToe = {
       wh_1_5,
     ]),
     myDeck: new Deck(),
-    player2Deck: new Deck()
+    player2Deck: new Deck(),
+    colorHints: ['yellow', 'red', 'green', 'blue', 'white'],
+    letterHints: ['A', 'B', 'C', 'D', 'E']
   }),
 
   turn: {
@@ -117,17 +116,17 @@ const TicTacToe = {
     var cardDrawn = deck.draw(1);
     mydeck.addToBottom([cardDrawn]);
   },
-  ai: {
-    enumerate: (G) => {
-      let r = [];
-      for (let i = 0; i < 9; i++) {
-        if (G.cells[i] === null) {
-          r.push({ move: 'clickCell', args: [i] });
-        }
-      }
-      return r;
-    },
-  },
+  moves: {
+    giveHint: (() => {
+
+    }),
+    discardCard: (() => {
+
+    }),
+    playCard: (() => {
+      
+    })
+  }
 };
 
 export default TicTacToe;
