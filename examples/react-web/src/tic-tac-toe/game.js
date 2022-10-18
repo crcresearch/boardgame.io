@@ -31,33 +31,78 @@ const TicTacToe = {
 
   setup: () => ({
     cells: new Array(9).fill(null),
+    // cards Yellow Red Blue Green White 1-(3) 2-(2) 3-(2) 4-(2) 5-(1)
+    // color_cardvalue_cardnumber
+    gameDeck: new Deck([
+      yel_1_1,
+      yel_1_2,
+      yel_1_3,
+      yel_2_1,
+      yel_2_2,
+      yel_3_1,
+      yel_3_2,
+      yel_4_1,
+      yel_4_2,
+      yel_1_5,
+      bl_1_1,
+      bl_1_2,
+      bl_1_3,
+      bl_2_1,
+      bl_2_2,
+      bl_3_1,
+      bl_3_2,
+      bl_4_1,
+      bl_4_2,
+      bl_1_5,
+      red_1_1,
+      red_1_2,
+      red_1_3,
+      red_2_1,
+      red_2_2,
+      red_3_1,
+      red_3_2,
+      red_4_1,
+      red_4_2,
+      red_1_5,
+      gr_1_1,
+      gr_1_2,
+      gr_1_3,
+      gr_2_1,
+      gr_2_2,
+      gr_3_1,
+      gr_3_2,
+      gr_4_1,
+      gr_4_2,
+      gr_1_5,
+      wh_1_1,
+      wh_1_2,
+      wh_1_3,
+      wh_2_1,
+      wh_2_2,
+      wh_3_1,
+      wh_3_2,
+      wh_4_1,
+      wh_4_2,
+      wh_1_5,
+    ]),
   }),
-
-  moves: {
-    clickCell({ G, playerID }, id) {
-      const cells = [...G.cells];
-
-      if (cells[id] === null) {
-        cells[id] = playerID;
-        return { ...G, cells };
-      }
-    },
-  },
 
   turn: {
     minMoves: 1,
     maxMoves: 1,
   },
 
-  endIf: ({ G, ctx }) => {
-    if (IsVictory(G.cells)) {
-      return { winner: ctx.currentPlayer };
-    }
-    if (G.cells.filter((c) => c === null).length == 0) {
-      return { draw: true };
-    }
+  shuffle: ({ G, ctx }) => {
+    const deck = [...G.gameDeck];
+    deck.shuffle();
   },
-
+  deal: ({ G, ctx }) => {
+    myDeck.top(5);
+  },
+  draw: ({ G, ctx }) => {
+    const deck = [...G.gameDeck];
+    myDeck.top(1);
+  },
   ai: {
     enumerate: (G) => {
       let r = [];
