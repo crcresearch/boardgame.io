@@ -10,46 +10,73 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import './board.css';
 
-const Card = ({ width, color, number }) => {
+const Card = ({ width, color, number, letter, hasBorder }) => {
   const height = width * 1.6;
 
   return (
-    <div style={{ width, height, backgroundColor: color ?? 'purple' }}>
-      {number}
+    <div style={{ width, height, padding: 5 }}>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: color ?? 'violet',
+          borderRadius: 5,
+          position: 'relative',
+          border: hasBorder ? 'dotted black 2px' : undefined,
+          boxSizing: 'border-box',
+          padding: 2,
+        }}
+      >
+        <div style={{ fontSize: 16 }}>{letter}</div>
+        <div style={{ position: 'absolute', bottom: 0 }}>{number}</div>
+      </div>
     </div>
   );
 };
 
-const Hand = ({ cards, width }) => {
+const Hand = ({ cards, width, hidden }) => {
   const cardWidth = width / cards.length;
+  const newCards = hidden
+    ? cards.map((card) => ({ number: card.number }))
+    : cards;
 
   return (
     <div style={{ display: 'flex', width }}>
-      {cards.map((card) => (
-        <Card width={cardWidth} color={card.color} number={card.number} />
+      {newCards.map((card) => (
+        <Card width={cardWidth} {...card} />
       ))}
     </div>
   );
 };
 
-const Screen = () => {
+const Screen = ({ playerID }) => {
   const width = 300;
   const height = 600;
+  console.log(playerID);
+  console.log(typeof playerID);
 
-  const myCards = [
-    { color: 'red', number: 4 },
-    { color: 'yellow', number: 2 },
-    { color: 'white', number: 1 },
-    { color: 'yellow', number: 2 },
-    { color: 'green', number: 5 },
+  const p0Cards = [
+    { color: 'yellow', number: 1, letter: 'A' },
+    { color: 'blue', number: 2, letter: 'B' },
+    { color: 'blue', number: 3, letter: 'C' },
+    { color: 'white', number: 4, letter: 'D' },
+    { color: 'green', number: 5, letter: 'E' },
   ];
 
-  const otherPlayerCards = [
-    { color: 'red', number: 1 },
-    { color: 'blue', number: 2 },
-    { color: 'green', number: 3 },
-    { color: 'yellow', number: 4 },
-    { color: 'white', number: 5 },
+  const p1Cards = [
+    { color: 'red', number: 6, letter: 'D' },
+    { color: 'blue', number: 7, letter: 'D' },
+    { color: 'green', number: 8, letter: 'A' },
+    { color: 'yellow', number: 9, letter: 'E' },
+    { color: 'white', number: 10, letter: 'C' },
+  ];
+
+  const boardCards = [
+    { color: 'green', letter: 'A' },
+    { color: 'white', letter: 'B' },
+    { color: 'yellow', letter: 'C' },
+    { color: 'red', letter: 'D' },
+    { letter: 'Blue', hasBorder: true, color: 'none' },
   ];
 
   return (
@@ -58,12 +85,34 @@ const Screen = () => {
         width,
         height,
         border: '3px solid black',
-        borderRadius: 10,
+        borderRadius: 15,
         backgroundColor: 'silver',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <Hand width={width} cards={otherPlayerCards} />
-      <Hand width={width} cards={myCards} />
+      <div>
+        <Hand width={width} cards={playerID === '0' ? p1Cards : p0Cards} />
+      </div>
+      <div
+        style={{
+          flex: '1 0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Hand width={width * 0.8} cards={boardCards} />
+      </div>
+      <div>
+        <Hand
+          width={width}
+          cards={playerID === '0' ? p0Cards : p1Cards}
+          hidden
+        />
+      </div>
     </div>
   );
 };
@@ -93,7 +142,7 @@ class Board extends React.Component {
   render() {
     return (
       <div style={{ margin: 30 }}>
-        <Screen />
+        <Screen playerID={this.props.playerID} />
       </div>
     );
 
