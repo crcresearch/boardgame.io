@@ -230,7 +230,14 @@ const Shade = ({ onClick }) => (
   />
 );
 
-const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
+const ClueModal = ({
+  playerHand,
+  closeModal,
+  setSelectedCards,
+  isOpen,
+  G,
+  ctx,
+}) => {
   const [selectedButton, setSelectedButton] = useState(undefined);
   const colorGroups = _.groupBy(playerHand, (card) => card.color);
   const letterGroups = _.groupBy(playerHand, (card) => card.letter);
@@ -517,6 +524,8 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
           closeModal={() => setClueModalOpen(false)}
           setSelectedCards={setSelectedOtherCards}
           isOpen={clueModalOpen}
+          G={G}
+          ctx={ctx}
         />
       </div>
     </div>
