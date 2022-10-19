@@ -146,11 +146,11 @@ const TicTacToe = {
     }[playerTurn];
     const newDeck = _.without(G[deckName], card);
     G[deckName] = newDeck;
-
   },
   moves: {
     giveHint: () => {},
-    discardCard: ({G, ctx}, card) => {
+
+    discardCard: ({ G, ctx }, card) => {
       const deck = [...G.gameDeck];
       const playerTurn = ctx.currentPlayer;
       const deckName = {
@@ -161,17 +161,22 @@ const TicTacToe = {
       newPlayerDeck = _.take(deck, 1);
       G[deckName] = newPlayerDeck;
     },
-    playCard: ({G, ctx}, completedDeck, card) => {
-      G[completedDeck] = completedDeck;
+
+    playCard: ({ G, ctx }, completedDeck, card) => {
+      console.log('here');
+      console.log({ completedDeck, card });
+      G.completedDeck = completedDeck;
+      console.log('here1');
       const playerTurn = ctx.currentPlayer;
       const deckName = {
         0: 'player1Deck',
         1: 'player2Deck',
       }[playerTurn];
       let newPlayerDeck = _.without(G[deckName], card);
-      newPlayerDeck = _.take(deck, 1);
+      newPlayerDeck = [...newPlayerDeck, _.take(deckName, 1)];
+      console.log('here2');
       G[deckName] = newPlayerDeck;
-
+      console.log('here3');
     },
   },
 };

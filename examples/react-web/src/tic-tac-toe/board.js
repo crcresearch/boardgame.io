@@ -12,6 +12,7 @@ import _ from 'lodash';
 import './board.css';
 
 const gameCardtoBoardCard = (cardString) => {
+  console.log({ cardString });
   const splitStr = cardString.split('_');
 
   const color = {
@@ -317,7 +318,7 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
   );
 };
 
-const Screen = ({ playerID, playerTurn, lastClue, G, ctx }) => {
+const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
   const [clueModalOpen, setClueModalOpen] = useState(false);
   const [isPlayingCard, setIsPlayingCard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
@@ -326,6 +327,7 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx }) => {
   const width = 300;
   const height = 600;
 
+  console.log({ G });
   const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
   const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
   const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
@@ -360,11 +362,22 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx }) => {
         ? {
             onClick: () => {
               console.log(G.completedDeck);
-              const gameCard = boardCardToGameCard(card).split('_');
-              const bestMidCard = G.completedDeck[gameCard[0]];
-              console.log({ gameCard, bestMidCard });
+              const gameCardStr = boardCardToGameCard(card);
+              const gameCard = gameCardStr.split('_');
+              const color = gameCard[0];
+              const bestMidCardNum = G.completedDeck[gameCard[0]];
+              console.log({ gameCard, bestMidCardNum });
               const cardIsValid =
-                bestMidCard === null || gameCard[1] > bestMidCard[1];
+                bestMidCardNum === null ||
+                Number(gameCard[1]) - bestMidCardNum === 1;
+              if (cardIsValid) {
+                const newMidDeck = {
+                  ...G.completedDeck,
+                  [color]: Number(gameCard[1]),
+                };
+                console.log({ newMidDeck });
+                moves.playCard(newMidDeck, gameCardStr);
+              }
             },
             ...card,
           }
@@ -535,6 +548,7 @@ class Board extends React.Component {
           playerTurn={playerTurn}
           G={this.props.G}
           ctx={this.props.ctx}
+          moves={this.props.moves}
         />
       </div>
     );
