@@ -70,9 +70,13 @@ const midGameDeckToMidBoardDeck = (completedDeck) => {
     wh: 'white',
   };
   const deckArr = [];
-  for (const key in Object.keys(completedDeck)) {
+  console.log({ completedDeck });
+  for (const key of Object.keys(completedDeck)) {
+    console.log({ key });
     const color = colorMap[key];
+    console.log({ color });
     const cardNumber = completedDeck[key];
+    console.log({ cardNumber });
     if (cardNumber === null) {
       deckArr.push({ letter: color, isEmpty: true, color: 'none' });
     } else {
@@ -364,6 +368,8 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
   const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
   const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
   const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
+  console.log(G.completedDeck);
+  console.log({ boardCards });
 
   // const p0Cards = [
   //   { color: 'yellow', id: 1, letter: 'A' },
