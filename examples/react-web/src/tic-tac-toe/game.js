@@ -147,15 +147,32 @@ const TicTacToe = {
     const newDeck = _.without(G[deckName], card);
     G[deckName] = newDeck;
 
-    // let deck = [...G.gameDeck];
-    // let mydeck = [...G.myDeck];
-    // var cardDrawn = deck.draw(1);
-    // mydeck.addToBottom([cardDrawn]);
   },
   moves: {
     giveHint: () => {},
-    discardCard: () => {},
-    playCard: () => {},
+    discardCard: ({G, ctx}, card) => {
+      const deck = [...G.gameDeck];
+      const playerTurn = ctx.currentPlayer;
+      const deckName = {
+        0: 'player1Deck',
+        1: 'player2Deck',
+      }[playerTurn];
+      let newPlayerDeck = _.without(G[deckName], card);
+      newPlayerDeck = _.take(deck, 1);
+      G[deckName] = newPlayerDeck;
+    },
+    playCard: ({G, ctx}, completedDeck, card) => {
+      G[completedDeck] = completedDeck;
+      const playerTurn = ctx.currentPlayer;
+      const deckName = {
+        0: 'player1Deck',
+        1: 'player2Deck',
+      }[playerTurn];
+      let newPlayerDeck = _.without(G[deckName], card);
+      newPlayerDeck = _.take(deck, 1);
+      G[deckName] = newPlayerDeck;
+
+    },
   },
 };
 
