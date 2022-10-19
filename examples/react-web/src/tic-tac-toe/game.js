@@ -86,11 +86,23 @@ const TicTacToe = {
       'wh_4_2',
       'wh_5_1',
     ]);
+
+    // Draw 5 for p1
     let player1Deck = _.take(gameDeck, 5);
     gameDeck = gameDeck.slice(5);
+
+    // Draw 5 for p2
     let player2Deck = _.take(gameDeck, 5);
     gameDeck = gameDeck.slice(5);
-    console.log(gameDeck, player1Deck, player2Deck);
+
+    const completedDeck = {
+      yellow: null,
+      red: null,
+      green: null,
+      blue: null,
+      white: null,
+    };
+    const lastClue = null;
 
     return {
       gameDeck,
@@ -98,6 +110,8 @@ const TicTacToe = {
       player2Deck,
       colorHints: ['yellow', 'red', 'green', 'blue', 'white'],
       letterHints: ['A', 'B', 'C', 'D', 'E'],
+      completedDeck,
+      lastClue,
     };
   },
 
@@ -108,26 +122,35 @@ const TicTacToe = {
 
   shuffle: ({ G, ctx }) => {
     const deck = [...G.gameDeck];
-    deck.shuffle();
+    G.gameDeck = _.shuffle(deck);
+    // deck.shuffle();
   },
-  deal: ({ G, ctx }) => {
-    let deck = [...G.gameDeck];
-    let mydeck = [...G.myDeck];
-    let p2deck = [...G.player2Deck];
+  // deal: ({ G, ctx }) => {
+  //   let deck = [...G.gameDeck];
+  //   let mydeck = [...G.myDeck];
+  //   let p2deck = [...G.player2Deck];
 
-    // Draw 5 cards from the deck for your hand
-    var drawnCards = deck.draw(5);
-    mydeck.addToBottom(drawnCards);
+  //   // Draw 5 cards from the deck for your hand
+  //   var drawnCards = deck.draw(5);
+  //   mydeck.addToBottom(drawnCards);
 
-    // Draw 5 cards from the deck for player2's hand
-    drawnCards = deck.draw(5);
-    p2deck.addToBottom(drawnCards);
-  },
-  draw: ({ G, ctx }) => {
-    let deck = [...G.gameDeck];
-    let mydeck = [...G.myDeck];
-    var cardDrawn = deck.draw(1);
-    mydeck.addToBottom([cardDrawn]);
+  //   // Draw 5 cards from the deck for player2's hand
+  //   drawnCards = deck.draw(5);
+  //   p2deck.addToBottom(drawnCards);
+  // },
+  draw: ({ G, ctx }, card) => {
+    const playerTurn = ctx.currentPlayer;
+    const deckName = {
+      0: 'player1Deck',
+      1: 'player2Deck',
+    }[playerTurn];
+    const newDeck = _.without(G[deckName], card);
+    G[deckName] = newDeck;
+
+    // let deck = [...G.gameDeck];
+    // let mydeck = [...G.myDeck];
+    // var cardDrawn = deck.draw(1);
+    // mydeck.addToBottom([cardDrawn]);
   },
   moves: {
     giveHint: () => {},

@@ -238,7 +238,7 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
   );
 };
 
-const Screen = ({ playerID, playerTurn }) => {
+const Screen = ({ playerID, playerTurn, lastClue }) => {
   const [clueModalOpen, setClueModalOpen] = useState(false);
   const [isPlayingCard, setIsPlayingCard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
@@ -375,6 +375,7 @@ const Screen = ({ playerID, playerTurn }) => {
                 />
               </div>
             )}
+            {lastClue && <span>{lastClue}</span>}
             <Hand width={width * 0.8} cards={boardCards} />
             {(isPlayingCard || isDiscarding) && (
               <Shade
