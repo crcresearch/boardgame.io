@@ -5,6 +5,10 @@
  * license that can be found in the LICENSE file or at
  * https://opensource.org/licenses/MIT.
  */
+// const Deck = require('../../../../node_modules/card-deck/deck');
+// console.log({ Deck });
+// console.log(new Deck());
+import _ from 'lodash';
 
 function IsVictory(cells) {
   const positions = [
@@ -29,63 +33,73 @@ function IsVictory(cells) {
 const TicTacToe = {
   name: 'tic-tac-toe',
 
-  setup: () => ({
-    cells: new Array(9).fill(null),
-    // cards Yellow Red Blue Green White 1-(3) 2-(2) 3-(2) 4-(2) 5-(1)
-    // color_cardvalue_cardnumber
-    gameDeck: new Deck([
-      yel_1_1,
-      yel_1_2,
-      yel_1_3,
-      yel_2_1,
-      yel_2_2,
-      yel_3_1,
-      yel_3_2,
-      yel_4_1,
-      yel_4_2,
-      yel_1_5,
-      bl_1_1,
-      bl_1_2,
-      bl_1_3,
-      bl_2_1,
-      bl_2_2,
-      bl_3_1,
-      bl_3_2,
-      bl_4_1,
-      bl_4_2,
-      bl_1_5,
-      red_1_1,
-      red_1_2,
-      red_1_3,
-      red_2_1,
-      red_2_2,
-      red_3_1,
-      red_3_2,
-      red_4_1,
-      red_4_2,
-      red_1_5,
-      gr_1_1,
-      gr_1_2,
-      gr_1_3,
-      gr_2_1,
-      gr_2_2,
-      gr_3_1,
-      gr_3_2,
-      gr_4_1,
-      gr_4_2,
-      gr_1_5,
-      wh_1_1,
-      wh_1_2,
-      wh_1_3,
-      wh_2_1,
-      wh_2_2,
-      wh_3_1,
-      wh_3_2,
-      wh_4_1,
-      wh_4_2,
-      wh_1_5,
-    ]),
-  }),
+  setup: () => {
+    let gameDeck = _.shuffle([
+      'yel_1_1',
+      'yel_1_2',
+      'yel_1_3',
+      'yel_2_1',
+      'yel_2_2',
+      'yel_3_1',
+      'yel_3_2',
+      'yel_4_1',
+      'yel_4_2',
+      'yel_5_1',
+      'bl_1_1',
+      'bl_1_2',
+      'bl_1_3',
+      'bl_2_1',
+      'bl_2_2',
+      'bl_3_1',
+      'bl_3_2',
+      'bl_4_1',
+      'bl_4_2',
+      'bl_5_1',
+      'red_1_1',
+      'red_1_2',
+      'red_1_3',
+      'red_2_1',
+      'red_2_2',
+      'red_3_1',
+      'red_3_2',
+      'red_4_1',
+      'red_4_2',
+      'red_5_1',
+      'gr_1_1',
+      'gr_1_2',
+      'gr_1_3',
+      'gr_2_1',
+      'gr_2_2',
+      'gr_3_1',
+      'gr_3_2',
+      'gr_4_1',
+      'gr_4_2',
+      'gr_5_1',
+      'wh_1_1',
+      'wh_1_2',
+      'wh_1_3',
+      'wh_2_1',
+      'wh_2_2',
+      'wh_3_1',
+      'wh_3_2',
+      'wh_4_1',
+      'wh_4_2',
+      'wh_5_1',
+    ]);
+    let player1Deck = _.take(gameDeck, 5);
+    gameDeck = gameDeck.slice(5);
+    let player2Deck = _.take(gameDeck, 5);
+    gameDeck = gameDeck.slice(5);
+    console.log(gameDeck, player1Deck, player2Deck);
+
+    return {
+      gameDeck,
+      player1Deck,
+      player2Deck,
+      colorHints: ['yellow', 'red', 'green', 'blue', 'white'],
+      letterHints: ['A', 'B', 'C', 'D', 'E'],
+    };
+  },
 
   turn: {
     minMoves: 1,
@@ -97,22 +111,28 @@ const TicTacToe = {
     deck.shuffle();
   },
   deal: ({ G, ctx }) => {
-    myDeck.top(5);
+    let deck = [...G.gameDeck];
+    let mydeck = [...G.myDeck];
+    let p2deck = [...G.player2Deck];
+
+    // Draw 5 cards from the deck for your hand
+    var drawnCards = deck.draw(5);
+    mydeck.addToBottom(drawnCards);
+
+    // Draw 5 cards from the deck for player2's hand
+    drawnCards = deck.draw(5);
+    p2deck.addToBottom(drawnCards);
   },
   draw: ({ G, ctx }) => {
-    const deck = [...G.gameDeck];
-    myDeck.top(1);
+    let deck = [...G.gameDeck];
+    let mydeck = [...G.myDeck];
+    var cardDrawn = deck.draw(1);
+    mydeck.addToBottom([cardDrawn]);
   },
-  ai: {
-    enumerate: (G) => {
-      let r = [];
-      for (let i = 0; i < 9; i++) {
-        if (G.cells[i] === null) {
-          r.push({ move: 'clickCell', args: [i] });
-        }
-      }
-      return r;
-    },
+  moves: {
+    giveHint: () => {},
+    discardCard: () => {},
+    playCard: () => {},
   },
 };
 
