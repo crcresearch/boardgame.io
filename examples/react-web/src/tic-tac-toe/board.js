@@ -70,15 +70,12 @@ const midGameDeckToMidBoardDeck = (completedDeck) => {
     wh: 'white',
   };
   const deckArr = [];
-  console.log({ completedDeck });
   for (const key of Object.keys(completedDeck)) {
-    console.log({ key });
     const color = colorMap[key];
-    console.log({ color });
     const cardNumber = completedDeck[key];
-    console.log({ cardNumber });
     if (cardNumber === null) {
-      deckArr.push({ letter: color, isEmpty: true, color: 'none' });
+      const text = color === 'white' ? 'pink' : color;
+      deckArr.push({ letter: text, isEmpty: true, color: 'none' });
     } else {
       const numberMap = {
         1: 'A',
