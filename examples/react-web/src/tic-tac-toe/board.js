@@ -11,6 +11,85 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './board.css';
 
+const gameCardtoBoardCard = (cardString) => {
+  const splitStr = cardString.split('_');
+
+  const color = {
+    yel: 'yellow',
+    bl: 'blue',
+    red: 'red',
+    gr: 'green',
+    wh: 'white',
+  }[splitStr[0]];
+
+  const letter = {
+    1: 'A',
+    2: 'B',
+    3: 'C',
+    4: 'D',
+    5: 'E',
+  }[splitStr[1]];
+
+  const id = Number(splitStr[2]);
+
+  return {
+    color,
+    letter,
+    id,
+  };
+};
+
+const boardCardToGameCard = (cardObj) => {
+  const color = {
+    yellow: 'yel',
+    blue: 'bl',
+    red: 'red',
+    green: 'gr',
+    white: 'wh',
+  }[cardObj.color];
+
+  const number = {
+    A: '1',
+    B: '2',
+    C: '3',
+    D: '4',
+    E: '5',
+  }[cardObj.letter];
+
+  const id = String(cardObj.id);
+
+  return [color, number, id].join('_');
+};
+
+const midGameDeckToMidBoardDeck = (completedDeck) => {
+  const colorMap = {
+    yel: 'yellow',
+    bl: 'blue',
+    red: 'red',
+    gr: 'green',
+    wh: 'white',
+  };
+  const deckArr = [];
+  for (const key in Object.keys(completedDeck)) {
+    const color = colorMap[key];
+    const cardNumber = completedDeck[key];
+    if (cardNumber === null) {
+      deckArr.push({ letter: color, isEmpty: true, color: 'none' });
+    } else {
+      const numberMap = {
+        1: 'A',
+        2: 'B',
+        3: 'C',
+        4: 'D',
+        5: 'E',
+      };
+      const letter = numberMap[cardNumber];
+      deckArr.push({ color: color, letter: letter });
+    }
+  }
+  return deckArr;
+};
+
 const cardColors = {
   blue: '#59A1E4',
   yellow: '#E4BD59',
@@ -238,55 +317,70 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
   );
 };
 
-const Screen = ({ playerID, playerTurn, lastClue }) => {
+const Screen = ({ playerID, playerTurn, lastClue, G, ctx }) => {
   const [clueModalOpen, setClueModalOpen] = useState(false);
   const [isPlayingCard, setIsPlayingCard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
-  const [selectedCards, setSelectedCards] = useState([]);
+  const [selectedOtherCards, setSelectedOtherCards] = useState([]);
 
   const width = 300;
   const height = 600;
 
-  const p0Cards = [
-    { color: 'yellow', id: 1, letter: 'A' },
-    { color: 'blue', id: 2, letter: 'B' },
-    { color: 'blue', id: 3, letter: 'C' },
-    { color: 'white', id: 4, letter: 'D' },
-    { color: 'green', id: 5, letter: 'E' },
-  ];
+  const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
+  const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
+  const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
 
-  const p1Cards = [
-    { color: 'red', id: 6, letter: 'D' },
-    { color: 'blue', id: 7, letter: 'D' },
-    { color: 'green', id: 8, letter: 'A' },
-    { color: 'yellow', id: 9, letter: 'E' },
-    { color: 'white', id: 10, letter: 'C' },
-  ];
+  // const p0Cards = [
+  //   { color: 'yellow', id: 1, letter: 'A' },
+  //   { color: 'blue', id: 2, letter: 'B' },
+  //   { color: 'blue', id: 3, letter: 'C' },
+  //   { color: 'white', id: 4, letter: 'D' },
+  //   { color: 'green', id: 5, letter: 'E' },
+  // ];
+
+  // const p1Cards = [
+  //   { color: 'red', id: 6, letter: 'D' },
+  //   { color: 'blue', id: 7, letter: 'D' },
+  //   { color: 'green', id: 8, letter: 'A' },
+  //   { color: 'yellow', id: 9, letter: 'E' },
+  //   { color: 'white', id: 10, letter: 'C' },
+  // ];
+
+  // const boardCards = [
+  //   { color: 'green', letter: 'A' },
+  //   { color: 'white', letter: 'D' },
+  //   { color: 'yellow', letter: 'C' },
+  //   { color: 'red', letter: 'B' },
+  //   { letter: 'Blue', isEmpty: true, color: 'none' },
+  // ];
 
   const currentPlayerCards = (playerID === '0' ? p0Cards : p1Cards).map(
     (card) => {
       return isPlayingCard
-        ? { onClick: () => console.log('Card clicked'), ...card }
+        ? {
+            onClick: () => {
+              console.log(G.completedDeck);
+              const gameCard = boardCardToGameCard(card).split('_');
+              const bestMidCard = G.completedDeck[gameCard[0]];
+              console.log({ gameCard, bestMidCard });
+              const cardIsValid =
+                bestMidCard === null || gameCard[1] > bestMidCard[1];
+            },
+            ...card,
+          }
         : isDiscarding
-        ? { onClick: () => console.log('Discarding card'), ...card }
-        : card;
-    }
-  );
-  const otherPlayerCards = (playerID === '0' ? p1Cards : p0Cards).map(
-    (card) => {
-      return selectedCards.includes(card.id)
-        ? { isHighlighted: true, ...card }
+        ? { onClick: () => setSelectedPlayerCard(card), ...card }
         : card;
     }
   );
 
-  const boardCards = [
-    { color: 'green', letter: 'A' },
-    { color: 'white', letter: 'D' },
-    { color: 'yellow', letter: 'C' },
-    { color: 'red', letter: 'B' },
-    { letter: 'Blue', isEmpty: true, color: 'none' },
-  ];
+  const otherPlayerCards = (playerID === '0' ? p1Cards : p0Cards).map(
+    (card) => {
+      return selectedOtherCards.includes(card.id)
+        ? { isHighlighted: true, ...card }
+        : card;
+    }
+  );
 
   return (
     <div
@@ -401,7 +495,7 @@ const Screen = ({ playerID, playerTurn, lastClue }) => {
         <ClueModal
           playerHand={otherPlayerCards}
           closeModal={() => setClueModalOpen(false)}
-          setSelectedCards={setSelectedCards}
+          setSelectedCards={setSelectedOtherCards}
           isOpen={clueModalOpen}
         />
       </div>
@@ -436,7 +530,12 @@ class Board extends React.Component {
 
     return (
       <div style={{ margin: 30 }}>
-        <Screen playerID={this.props.playerID} playerTurn={playerTurn} />
+        <Screen
+          playerID={this.props.playerID}
+          playerTurn={playerTurn}
+          G={this.props.G}
+          ctx={this.props.ctx}
+        />
       </div>
     );
 

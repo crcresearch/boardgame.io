@@ -96,11 +96,11 @@ const TicTacToe = {
     gameDeck = gameDeck.slice(5);
 
     const completedDeck = {
-      yellow: null,
+      yel: null,
       red: null,
-      green: null,
-      blue: null,
-      white: null,
+      gr: null,
+      bl: null,
+      wh: null,
     };
     const lastClue = null;
 
