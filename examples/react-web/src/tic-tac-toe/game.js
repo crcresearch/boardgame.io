@@ -154,7 +154,17 @@ const TicTacToe = {
   },
   moves: {
     giveHint: () => {},
-    discardCard: () => {},
+    discardCard: ({G, ctx}, card) => {
+      const deck = [...G.gameDeck];
+      const playerTurn = ctx.currentPlayer;
+      const deckName = {
+        0: 'player1Deck',
+        1: 'player2Deck',
+      }[playerTurn];
+      let newPlayerDeck = _.without(G[deckName], card);
+      newPlayerDeck = _.take(deck, 1);
+      G[deckName] = newPlayerDeck;
+    },
     playCard: () => {},
   },
 };
