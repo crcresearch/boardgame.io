@@ -115,7 +115,6 @@ const TicTacToe = {
   shuffle: ({ G, ctx }) => {
     const deck = [...G.gameDeck];
     G.gameDeck = _.shuffle(deck);
-    // deck.shuffle();
   },
 
   endIf: ({ G, ctx }) => {
@@ -124,23 +123,8 @@ const TicTacToe = {
     }
   },
 
-  // deal: ({ G, ctx }) => {
-  //   let deck = [...G.gameDeck];
-  //   let mydeck = [...G.myDeck];
-  //   let p2deck = [...G.player2Deck];
-
-  //   // Draw 5 cards from the deck for your hand
-  //   var drawnCards = deck.draw(5);
-  //   mydeck.addToBottom(drawnCards);
-
-  //   // Draw 5 cards from the deck for player2's hand
-  //   drawnCards = deck.draw(5);
-  //   p2deck.addToBottom(drawnCards);
-  // },
   moves: {
     giveClue: ({ G, ctx }, clueText) => {
-      console.log('here');
-      console.log({ clueText });
       G.lastClue = clueText;
     },
 

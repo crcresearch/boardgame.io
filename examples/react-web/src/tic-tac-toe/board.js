@@ -252,7 +252,6 @@ const ClueModal = ({
       style={{
         width: '100%',
         height: '100%',
-        // backgroundColor: 'rgba(1, 1, 1, 0.5)',
         display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
@@ -365,32 +364,6 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
   const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
   const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
   const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
-  console.log(G.completedDeck);
-  console.log({ boardCards });
-
-  // const p0Cards = [
-  //   { color: 'yellow', id: 1, letter: 'A' },
-  //   { color: 'blue', id: 2, letter: 'B' },
-  //   { color: 'blue', id: 3, letter: 'C' },
-  //   { color: 'white', id: 4, letter: 'D' },
-  //   { color: 'green', id: 5, letter: 'E' },
-  // ];
-
-  // const p1Cards = [
-  //   { color: 'red', id: 6, letter: 'D' },
-  //   { color: 'blue', id: 7, letter: 'D' },
-  //   { color: 'green', id: 8, letter: 'A' },
-  //   { color: 'yellow', id: 9, letter: 'E' },
-  //   { color: 'white', id: 10, letter: 'C' },
-  // ];
-
-  // const boardCards = [
-  //   { color: 'green', letter: 'A' },
-  //   { color: 'white', letter: 'D' },
-  //   { color: 'yellow', letter: 'C' },
-  //   { color: 'red', letter: 'B' },
-  //   { letter: 'Blue', isEmpty: true, color: 'none' },
-  // ];
 
   const currentPlayerCards = (playerID === '0' ? p0Cards : p1Cards).map(
     (card) => {
@@ -602,59 +575,6 @@ class Board extends React.Component {
         />
       </div>
     );
-
-    // let tbody = [];
-    // for (let i = 0; i < 3; i++) {
-    //   let cells = [];
-    //   for (let j = 0; j < 3; j++) {
-    //     const id = 3 * i + j;
-    //     cells.push(
-    //       <td
-    //         key={id}
-    //         className={this.isActive(id) ? 'active' : ''}
-    //         onClick={() => this.onClick(id)}
-    //       >
-    //         {this.props.G.cells[id]}
-    //       </td>
-    //     );
-    //   }
-    //   tbody.push(<tr key={i}>{cells}</tr>);
-    // }
-
-    // let disconnected = null;
-    // if (this.props.isMultiplayer && !this.props.isConnected) {
-    //   disconnected = <div>Disconnected!</div>;
-    // }
-
-    // let winner = null;
-    // if (this.props.ctx.gameover) {
-    //   winner =
-    //     this.props.ctx.gameover.winner !== undefined ? (
-    //       <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
-    //     ) : (
-    //       <div id="winner">Draw!</div>
-    //     );
-    // }
-
-    // let player = null;
-    // if (this.props.playerID) {
-    //   player = <div id="player">Player: {this.props.playerID}</div>;
-    // }
-
-    // if (this.props.isPreview) {
-    //   disconnected = player = null;
-    // }
-
-    // return (
-    //   <div>
-    //     <table id="board">
-    //       <tbody>{tbody}</tbody>
-    //     </table>
-    //     {player}
-    //     {winner}
-    //     {disconnected}
-    //   </div>
-    // );
   }
 }
 
