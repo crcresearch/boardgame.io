@@ -11,6 +11,86 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import './board.css';
 
+const gameCardtoBoardCard = (cardString) => {
+  const splitStr = cardString.split('_');
+
+  const color = {
+    yel: 'yellow',
+    bl: 'blue',
+    red: 'red',
+    gr: 'green',
+    wh: 'white',
+  }[splitStr[0]];
+
+  const letter = {
+    1: 'A',
+    2: 'B',
+    3: 'C',
+    4: 'D',
+    5: 'E',
+  }[splitStr[1]];
+
+  const id = Number(splitStr[2]);
+
+  return {
+    color,
+    letter,
+    id,
+  };
+};
+
+const boardCardToGameCard = (cardObj) => {
+  const color = {
+    yellow: 'yel',
+    blue: 'bl',
+    red: 'red',
+    green: 'gr',
+    white: 'wh',
+  }[cardObj.color];
+
+  const number = {
+    A: '1',
+    B: '2',
+    C: '3',
+    D: '4',
+    E: '5',
+  }[cardObj.letter];
+
+  const id = String(cardObj.id);
+
+  return [color, number, id].join('_');
+};
+
+const midGameDeckToMidBoardDeck = (completedDeck) => {
+  const colorMap = {
+    yel: 'yellow',
+    bl: 'blue',
+    red: 'red',
+    gr: 'green',
+    wh: 'white',
+  };
+  const deckArr = [];
+  for (const key of Object.keys(completedDeck)) {
+    const color = colorMap[key];
+    const cardNumber = completedDeck[key];
+    if (cardNumber === null) {
+      const text = color === 'white' ? 'pink' : color;
+      deckArr.push({ letter: text, isEmpty: true, color: 'none' });
+    } else {
+      const numberMap = {
+        1: 'A',
+        2: 'B',
+        3: 'C',
+        4: 'D',
+        5: 'E',
+      };
+      const letter = numberMap[cardNumber];
+      deckArr.push({ color: color, letter: letter });
+    }
+  }
+  return deckArr;
+};
+
 const cardColors = {
   blue: '#59A1E4',
   yellow: '#E4BD59',
@@ -150,7 +230,15 @@ const Shade = ({ onClick }) => (
   />
 );
 
-const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
+const ClueModal = ({
+  playerHand,
+  closeModal,
+  setSelectedCards,
+  isOpen,
+  G,
+  ctx,
+  moves,
+}) => {
   const [selectedButton, setSelectedButton] = useState(undefined);
   const colorGroups = _.groupBy(playerHand, (card) => card.color);
   const letterGroups = _.groupBy(playerHand, (card) => card.letter);
@@ -164,7 +252,6 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
       style={{
         width: '100%',
         height: '100%',
-        // backgroundColor: 'rgba(1, 1, 1, 0.5)',
         display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
@@ -230,7 +317,34 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
         <br />
         <ActionButton
           text="Send clue"
-          onClick={() => {}}
+          onClick={() => {
+            const selectedCards =
+              selectedButton.toUpperCase() === selectedButton
+                ? letterGroups[selectedButton]
+                : colorGroups[selectedButton];
+
+            const cardText =
+              selectedCards.length === 1
+                ? String(selectedCards[0].id) + ' is '
+                : selectedCards.length === 2
+                ? selectedCards[0].id + ' and ' + selectedCards[1].id + ' are '
+                : selectedCards
+                    .map((card, i) =>
+                      i === selectedCards.length - 1
+                        ? 'and ' + String(card.id)
+                        : String(card.id)
+                    )
+                    .join(', ') + ' are ';
+
+            moves.giveClue(
+              (selectedCards.length > 1 ? 'Cards ' : 'Card ') +
+                cardText +
+                selectedButton
+            );
+            closeModal();
+            setSelectedButton(undefined);
+            setSelectedCards([]);
+          }}
           disabled={!selectedButton}
         />
       </div>
@@ -238,55 +352,65 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
   );
 };
 
-const Screen = ({ playerID, playerTurn }) => {
+const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
   const [clueModalOpen, setClueModalOpen] = useState(false);
   const [isPlayingCard, setIsPlayingCard] = useState(false);
   const [isDiscarding, setIsDiscarding] = useState(false);
-  const [selectedCards, setSelectedCards] = useState([]);
+  const [selectedOtherCards, setSelectedOtherCards] = useState([]);
 
   const width = 300;
   const height = 600;
 
-  const p0Cards = [
-    { color: 'yellow', id: 1, letter: 'A' },
-    { color: 'blue', id: 2, letter: 'B' },
-    { color: 'blue', id: 3, letter: 'C' },
-    { color: 'white', id: 4, letter: 'D' },
-    { color: 'green', id: 5, letter: 'E' },
-  ];
-
-  const p1Cards = [
-    { color: 'red', id: 6, letter: 'D' },
-    { color: 'blue', id: 7, letter: 'D' },
-    { color: 'green', id: 8, letter: 'A' },
-    { color: 'yellow', id: 9, letter: 'E' },
-    { color: 'white', id: 10, letter: 'C' },
-  ];
+  const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
+  const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
+  const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
 
   const currentPlayerCards = (playerID === '0' ? p0Cards : p1Cards).map(
     (card) => {
       return isPlayingCard
-        ? { onClick: () => console.log('Card clicked'), ...card }
+        ? {
+            onClick: () => {
+              const gameCardStr = boardCardToGameCard(card);
+              const gameCard = gameCardStr.split('_');
+              const color = gameCard[0];
+              const bestMidCardNum = G.completedDeck[gameCard[0]];
+
+              const cardIsValid =
+                bestMidCardNum === null ||
+                Number(gameCard[1]) - bestMidCardNum === 1;
+
+              if (cardIsValid) {
+                const newMidDeck = {
+                  ...G.completedDeck,
+                  [color]: Number(gameCard[1]),
+                };
+
+                moves.playCard(newMidDeck, gameCardStr);
+                setIsPlayingCard(false);
+              }
+            },
+            ...card,
+          }
         : isDiscarding
-        ? { onClick: () => console.log('Discarding card'), ...card }
-        : card;
-    }
-  );
-  const otherPlayerCards = (playerID === '0' ? p1Cards : p0Cards).map(
-    (card) => {
-      return selectedCards.includes(card.id)
-        ? { isHighlighted: true, ...card }
+        ? {
+            onClick: () => {
+              const gameCardStr = boardCardToGameCard(card);
+              moves.discardCard(gameCardStr);
+              setIsDiscarding(false);
+            },
+            ...card,
+          }
         : card;
     }
   );
 
-  const boardCards = [
-    { color: 'green', letter: 'A' },
-    { color: 'white', letter: 'D' },
-    { color: 'yellow', letter: 'C' },
-    { color: 'red', letter: 'B' },
-    { letter: 'Blue', isEmpty: true, color: 'none' },
-  ];
+  const otherPlayerCards = (playerID === '0' ? p1Cards : p0Cards).map(
+    (card) => {
+      return selectedOtherCards.includes(card.id)
+        ? { isHighlighted: true, ...card }
+        : card;
+    }
+  );
 
   return (
     <div
@@ -375,6 +499,11 @@ const Screen = ({ playerID, playerTurn }) => {
                 />
               </div>
             )}
+            {lastClue && (
+              <span style={{ fontWeight: 'bold', fontSize: 20 }}>
+                {lastClue}
+              </span>
+            )}
             <Hand width={width * 0.8} cards={boardCards} />
             {(isPlayingCard || isDiscarding) && (
               <Shade
@@ -400,8 +529,11 @@ const Screen = ({ playerID, playerTurn }) => {
         <ClueModal
           playerHand={otherPlayerCards}
           closeModal={() => setClueModalOpen(false)}
-          setSelectedCards={setSelectedCards}
+          setSelectedCards={setSelectedOtherCards}
           isOpen={clueModalOpen}
+          G={G}
+          ctx={ctx}
+          moves={moves}
         />
       </div>
     </div>
@@ -431,66 +563,18 @@ class Board extends React.Component {
   }
 
   render() {
-    const playerTurn = '0';
-
     return (
       <div style={{ margin: 30 }}>
-        <Screen playerID={this.props.playerID} playerTurn={playerTurn} />
+        <Screen
+          playerID={this.props.playerID}
+          playerTurn={this.props.ctx.currentPlayer}
+          G={this.props.G}
+          ctx={this.props.ctx}
+          moves={this.props.moves}
+          lastClue={this.props.G.lastClue}
+        />
       </div>
     );
-
-    // let tbody = [];
-    // for (let i = 0; i < 3; i++) {
-    //   let cells = [];
-    //   for (let j = 0; j < 3; j++) {
-    //     const id = 3 * i + j;
-    //     cells.push(
-    //       <td
-    //         key={id}
-    //         className={this.isActive(id) ? 'active' : ''}
-    //         onClick={() => this.onClick(id)}
-    //       >
-    //         {this.props.G.cells[id]}
-    //       </td>
-    //     );
-    //   }
-    //   tbody.push(<tr key={i}>{cells}</tr>);
-    // }
-
-    // let disconnected = null;
-    // if (this.props.isMultiplayer && !this.props.isConnected) {
-    //   disconnected = <div>Disconnected!</div>;
-    // }
-
-    // let winner = null;
-    // if (this.props.ctx.gameover) {
-    //   winner =
-    //     this.props.ctx.gameover.winner !== undefined ? (
-    //       <div id="winner">Winner: {this.props.ctx.gameover.winner}</div>
-    //     ) : (
-    //       <div id="winner">Draw!</div>
-    //     );
-    // }
-
-    // let player = null;
-    // if (this.props.playerID) {
-    //   player = <div id="player">Player: {this.props.playerID}</div>;
-    // }
-
-    // if (this.props.isPreview) {
-    //   disconnected = player = null;
-    // }
-
-    // return (
-    //   <div>
-    //     <table id="board">
-    //       <tbody>{tbody}</tbody>
-    //     </table>
-    //     {player}
-    //     {winner}
-    //     {disconnected}
-    //   </div>
-    // );
   }
 }
 
