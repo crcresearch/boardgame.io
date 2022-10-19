@@ -145,6 +145,7 @@ const TicTacToe = {
     },
 
     discardCard: ({ G, ctx }, card) => {
+      if (G.gameDeck.length === 0) endGame();
       const playerTurn = ctx.currentPlayer;
       const deckName = {
         0: 'player1Deck',
@@ -165,6 +166,7 @@ const TicTacToe = {
         1: 'player2Deck',
       }[playerTurn];
       let newPlayerDeck = _.without(G[deckName], card);
+      if (G.gameDeck.length === 0) endGame();
       const [newGameDeck, newCards] = drawCards(G.gameDeck, 1);
       newPlayerDeck = newPlayerDeck.concat(newCards);
       G[deckName] = newPlayerDeck;
