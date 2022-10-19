@@ -84,6 +84,7 @@ const TicTacToe = {
     ]),
     myDeck: new Deck(),
     player2Deck: new Deck(),
+    discardPile: new Deck(),
     colorHints: ['yellow', 'red', 'green', 'blue', 'white'],
     letterHints: ['A', 'B', 'C', 'D', 'E']
   }),
@@ -120,8 +121,9 @@ const TicTacToe = {
     giveHint: (() => {
 
     }),
-    discardCard: (() => {
-
+    discardCard: ((card) => {
+      G.draw();
+      discard = G.mydeck.drawWhere((mycard) => card === mycard);
     }),
     playCard: (() => {
       
