@@ -12,7 +12,6 @@ import _ from 'lodash';
 import './board.css';
 
 const gameCardtoBoardCard = (cardString) => {
-  console.log({ cardString });
   const splitStr = cardString.split('_');
 
   const color = {
@@ -237,6 +236,7 @@ const ClueModal = ({
   isOpen,
   G,
   ctx,
+  moves,
 }) => {
   const [selectedButton, setSelectedButton] = useState(undefined);
   const colorGroups = _.groupBy(playerHand, (card) => card.color);
@@ -317,7 +317,34 @@ const ClueModal = ({
         <br />
         <ActionButton
           text="Send clue"
-          onClick={() => {}}
+          onClick={() => {
+            const selectedCards =
+              selectedButton.toUpperCase() === selectedButton
+                ? letterGroups[selectedButton]
+                : colorGroups[selectedButton];
+
+            const cardText =
+              selectedCards.length === 1
+                ? String(selectedCards[0].id) + ' is '
+                : selectedCards.length === 2
+                ? selectedCards[0].id + ' and ' + selectedCards[1].id + ' are '
+                : selectedCards
+                    .map((card, i) =>
+                      i === selectedCards.length - 1
+                        ? 'and ' + String(card.id)
+                        : String(card.id)
+                    )
+                    .join(', ') + ' are ';
+
+            moves.giveClue(
+              (selectedCards.length > 1 ? 'Cards ' : 'Card ') +
+                cardText +
+                selectedButton
+            );
+            closeModal();
+            setSelectedButton(undefined);
+            setSelectedCards([]);
+          }}
           disabled={!selectedButton}
         />
       </div>
@@ -496,7 +523,11 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
                 />
               </div>
             )}
-            {lastClue && <span>{lastClue}</span>}
+            {lastClue && (
+              <span style={{ fontWeight: 'bold', fontSize: 20 }}>
+                {lastClue}
+              </span>
+            )}
             <Hand width={width * 0.8} cards={boardCards} />
             {(isPlayingCard || isDiscarding) && (
               <Shade
@@ -526,6 +557,7 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
           isOpen={clueModalOpen}
           G={G}
           ctx={ctx}
+          moves={moves}
         />
       </div>
     </div>
@@ -563,6 +595,7 @@ class Board extends React.Component {
           G={this.props.G}
           ctx={this.props.ctx}
           moves={this.props.moves}
+          lastClue={this.props.G.lastClue}
         />
       </div>
     );

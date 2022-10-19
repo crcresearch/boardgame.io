@@ -14,7 +14,6 @@ const drawCards = (gameDeck, number) => {
   const cards = _.take(gameDeck, number).map(
     (card) => `${card}_${String(cardID++)}`
   );
-  console.log({ cards });
   const newGameDeck = gameDeck.slice(number);
   return [newGameDeck, cards];
 };
@@ -103,7 +102,6 @@ const TicTacToe = {
     // Draw 5 for p2
     let player2Deck;
     [gameDeck, player2Deck] = drawCards(gameDeck, 5);
-    console.log(gameDeck);
 
     const completedDeck = {
       yel: null,
@@ -149,7 +147,11 @@ const TicTacToe = {
   //   p2deck.addToBottom(drawnCards);
   // },
   moves: {
-    giveHint: () => {},
+    giveClue: ({ G, ctx }, clueText) => {
+      console.log('here');
+      console.log({ clueText });
+      G.lastClue = clueText;
+    },
 
     discardCard: ({ G, ctx }, card) => {
       const playerTurn = ctx.currentPlayer;
