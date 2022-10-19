@@ -327,7 +327,6 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
   const width = 300;
   const height = 600;
 
-  console.log({ G });
   const p0Cards = G.player1Deck.map((card) => gameCardtoBoardCard(card));
   const p1Cards = G.player2Deck.map((card) => gameCardtoBoardCard(card));
   const boardCards = midGameDeckToMidBoardDeck(G.completedDeck);
@@ -361,28 +360,36 @@ const Screen = ({ playerID, playerTurn, lastClue, G, ctx, moves }) => {
       return isPlayingCard
         ? {
             onClick: () => {
-              console.log(G.completedDeck);
               const gameCardStr = boardCardToGameCard(card);
               const gameCard = gameCardStr.split('_');
               const color = gameCard[0];
               const bestMidCardNum = G.completedDeck[gameCard[0]];
-              console.log({ gameCard, bestMidCardNum });
+
               const cardIsValid =
                 bestMidCardNum === null ||
                 Number(gameCard[1]) - bestMidCardNum === 1;
+
               if (cardIsValid) {
                 const newMidDeck = {
                   ...G.completedDeck,
                   [color]: Number(gameCard[1]),
                 };
-                console.log({ newMidDeck });
+
                 moves.playCard(newMidDeck, gameCardStr);
+                setIsPlayingCard(false);
               }
             },
             ...card,
           }
         : isDiscarding
-        ? { onClick: () => setSelectedPlayerCard(card), ...card }
+        ? {
+            onClick: () => {
+              const gameCardStr = boardCardToGameCard(card);
+              moves.discardCard(gameCardStr);
+              setIsDiscarding(false);
+            },
+            ...card,
+          }
         : card;
     }
   );
@@ -539,13 +546,11 @@ class Board extends React.Component {
   }
 
   render() {
-    const playerTurn = '0';
-
     return (
       <div style={{ margin: 30 }}>
         <Screen
           playerID={this.props.playerID}
-          playerTurn={playerTurn}
+          playerTurn={this.props.ctx.currentPlayer}
           G={this.props.G}
           ctx={this.props.ctx}
           moves={this.props.moves}

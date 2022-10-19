@@ -5,10 +5,14 @@
  * license that can be found in the LICENSE file or at
  * https://opensource.org/licenses/MIT.
  */
-// const Deck = require('../../../../node_modules/card-deck/deck');
-// console.log({ Deck });
-// console.log(new Deck());
+
 import _ from 'lodash';
+
+const drawCards = (G, number) => {
+  const cards = _.take(G.gameDeck, number);
+  G.gameDeck = G.gameDeck.slice(number);
+  return cards;
+};
 
 function IsVictory(cells) {
   const positions = [
@@ -138,15 +142,6 @@ const TicTacToe = {
   //   drawnCards = deck.draw(5);
   //   p2deck.addToBottom(drawnCards);
   // },
-  draw: ({ G, ctx }, card) => {
-    const playerTurn = ctx.currentPlayer;
-    const deckName = {
-      0: 'player1Deck',
-      1: 'player2Deck',
-    }[playerTurn];
-    const newDeck = _.without(G[deckName], card);
-    G[deckName] = newDeck;
-  },
   moves: {
     giveHint: () => {},
 
@@ -158,25 +153,20 @@ const TicTacToe = {
         1: 'player2Deck',
       }[playerTurn];
       let newPlayerDeck = _.without(G[deckName], card);
-      newPlayerDeck = _.take(deck, 1);
+      newPlayerDeck = [...newPlayerDeck, ...drawCards(G, 1)];
       G[deckName] = newPlayerDeck;
     },
 
     playCard: ({ G, ctx }, completedDeck, card) => {
-      console.log('here');
-      console.log({ completedDeck, card });
       G.completedDeck = completedDeck;
-      console.log('here1');
       const playerTurn = ctx.currentPlayer;
       const deckName = {
         0: 'player1Deck',
         1: 'player2Deck',
       }[playerTurn];
       let newPlayerDeck = _.without(G[deckName], card);
-      newPlayerDeck = [...newPlayerDeck, _.take(deckName, 1)];
-      console.log('here2');
+      newPlayerDeck = [...newPlayerDeck, ...drawCards(G, 1)];
       G[deckName] = newPlayerDeck;
-      console.log('here3');
     },
   },
 };
