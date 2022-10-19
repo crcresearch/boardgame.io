@@ -16,12 +16,20 @@ const cardColors = {
   yellow: '#E4BD59',
   red: '#EB5E5E',
   green: '#59DE44',
-  white: 'white',
+  white: '#ffccff', // now pink
   purple: '#9F59E4',
   none: 'none',
 };
 
-const Card = ({ width, color, id, letter, isEmpty, isHighlighted }) => {
+const Card = ({
+  width,
+  color,
+  id,
+  letter,
+  isEmpty,
+  isHighlighted,
+  onClick,
+}) => {
   const height = width * 1.6;
 
   return (
@@ -31,7 +39,7 @@ const Card = ({ width, color, id, letter, isEmpty, isHighlighted }) => {
           width: '100%',
           height: '100%',
           backgroundColor: cardColors[color] ?? cardColors['purple'],
-          borderRadius: 5,
+          borderRadius: 10,
           position: 'relative',
           border: isEmpty
             ? 'dotted black 2px'
@@ -39,22 +47,40 @@ const Card = ({ width, color, id, letter, isEmpty, isHighlighted }) => {
             ? 'solid orange 4px'
             : undefined,
           boxSizing: 'border-box',
-          padding: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
+        onClick={onClick}
       >
-        <div style={{ fontSize: 16 }}>{letter}</div>
-        <div style={{ position: 'absolute', bottom: 0 }}>{id}</div>
+        <div style={{ flex: '1 0 auto', fontSize: 16, fontWeight: 'bold' }}>
+          {letter}
+        </div>
+        <div style={{ fontWeight: 'bold' }}>{id}</div>
       </div>
     </div>
   );
 };
 
 const Hand = ({ cards, width, hidden }) => {
-  const cardWidth = width / cards.length;
-  const newCards = hidden ? cards.map((card) => ({ id: card.id })) : cards;
+  const cardWidth = 44;
+  const newCards = hidden
+    ? cards.map((card) => ({ id: card.id, onClick: card.onClick }))
+    : cards;
 
   return (
-    <div style={{ display: 'flex', width }}>
+    <div
+      style={{
+        display: 'flex',
+        width,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 15,
+        boxSizing: 'border-box',
+        flexWrap: 'wrap',
+      }}
+    >
       {newCards.map((card) => (
         <Card width={cardWidth} {...card} />
       ))}
@@ -62,15 +88,20 @@ const Hand = ({ cards, width, hidden }) => {
   );
 };
 
-const ActionButton = ({ text, onClick, disabled }) => {
+const ActionButton = ({ text, onClick, disabled, zIndex }) => {
   return (
     <button
       style={{
-        // backgroundColor: 'violet',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+        backgroundColor: cardColors['purple'],
         width: 80,
-        height: 30,
+        height: 40,
         border: 'none',
+        borderRadius: 10,
         opacity: disabled ? 0.7 : 1,
+        zIndex,
       }}
       onClick={onClick}
       disabled={disabled}
@@ -93,6 +124,9 @@ const ClueButton = ({ color, text, onClick, isActive, isHighlighted }) => {
         border: isHighlighted ? 'solid 4px orange' : 'none',
         opacity: isActive ? 1 : 0.3,
         boxSizing: 'border-box',
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: 'white',
       }}
       onClick={onClick}
       disabled={!isActive}
@@ -101,6 +135,20 @@ const ClueButton = ({ color, text, onClick, isActive, isHighlighted }) => {
     </button>
   );
 };
+
+const Shade = ({ onClick }) => (
+  <div
+    style={{
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      backgroundColor: 'rgba(1, 1, 1, 0.5)',
+    }}
+    onClick={onClick}
+  />
+);
 
 const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
   const [selectedButton, setSelectedButton] = useState(undefined);
@@ -116,7 +164,7 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
       style={{
         width: '100%',
         height: '100%',
-        backgroundColor: 'rgba(1, 1, 1, 0.5)',
+        // backgroundColor: 'rgba(1, 1, 1, 0.5)',
         display: isOpen ? 'flex' : 'none',
         alignItems: 'center',
         justifyContent: 'center',
@@ -133,7 +181,7 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
         style={{
           width: '80%',
           height: '70%',
-          backgroundColor: 'silver',
+          backgroundColor: '#D9D9D9',
           borderRadius: 15,
         }}
         onClick={(e) => e.stopPropagation()}
@@ -192,8 +240,9 @@ const ClueModal = ({ playerHand, closeModal, setSelectedCards, isOpen }) => {
 
 const Screen = ({ playerID, playerTurn }) => {
   const [clueModalOpen, setClueModalOpen] = useState(false);
+  const [isPlayingCard, setIsPlayingCard] = useState(false);
+  const [isDiscarding, setIsDiscarding] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
-  console.log({ selectedCards });
 
   const width = 300;
   const height = 600;
@@ -214,7 +263,15 @@ const Screen = ({ playerID, playerTurn }) => {
     { color: 'white', id: 10, letter: 'C' },
   ];
 
-  const currentPlayerCards = playerID === '0' ? p0Cards : p1Cards;
+  const currentPlayerCards = (playerID === '0' ? p0Cards : p1Cards).map(
+    (card) => {
+      return isPlayingCard
+        ? { onClick: () => console.log('Card clicked'), ...card }
+        : isDiscarding
+        ? { onClick: () => console.log('Discarding card'), ...card }
+        : card;
+    }
+  );
   const otherPlayerCards = (playerID === '0' ? p1Cards : p0Cards).map(
     (card) => {
       return selectedCards.includes(card.id)
@@ -225,9 +282,9 @@ const Screen = ({ playerID, playerTurn }) => {
 
   const boardCards = [
     { color: 'green', letter: 'A' },
-    { color: 'white', letter: 'B' },
+    { color: 'white', letter: 'D' },
     { color: 'yellow', letter: 'C' },
-    { color: 'red', letter: 'D' },
+    { color: 'red', letter: 'B' },
     { letter: 'Blue', isEmpty: true, color: 'none' },
   ];
 
@@ -238,21 +295,47 @@ const Screen = ({ playerID, playerTurn }) => {
         height,
         border: '3px solid black',
         borderRadius: 15,
-        backgroundColor: 'silver',
+        backgroundColor: 'white',
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
-      <div>
+      <div
+        style={{
+          backgroundColor: '#D9D9D9',
+          borderRadius: '15px 15px 0 0',
+          boxSizing: 'border-box',
+          width: '100%',
+          position: 'relative',
+        }}
+      >
         <Hand width={width} cards={otherPlayerCards} />
+        {(isPlayingCard || isDiscarding) && (
+          <Shade
+            onClick={() => {
+              setIsPlayingCard(false);
+              setIsDiscarding(false);
+            }}
+          />
+        )}
       </div>
-      <div style={{ flex: '1 0 auto', display: 'flex', position: 'relative' }}>
+      <div
+        style={{
+          flex: '1 0 auto',
+          display: 'flex',
+          position: 'relative',
+        }}
+      >
         <div
           style={{
             display: 'flex',
             flexDirection: 'column',
             flex: '1 0 auto',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
           }}
         >
           <div
@@ -262,23 +345,57 @@ const Screen = ({ playerID, playerTurn }) => {
               justifyContent: 'center',
               alignItems: 'center',
               flex: '1 0 auto',
+              position: 'relative',
             }}
           >
             {playerID === playerTurn && (
-              <div style={{ display: 'flex', gap: 10, margin: 10 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  margin: 10,
+                  width: '100%',
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}
+              >
                 <ActionButton
                   text="Give clue"
                   onClick={() => setClueModalOpen(true)}
                 />
-                <ActionButton text="Play card" onClick={() => {}} />
-                <ActionButton text="Discard" onClick={() => {}} />
+                <ActionButton
+                  text="Play card"
+                  onClick={() => setIsPlayingCard(true)}
+                  zIndex={isPlayingCard ? 5 : undefined}
+                />
+                <ActionButton
+                  text="Discard"
+                  onClick={() => setIsDiscarding(true)}
+                  zIndex={isDiscarding ? 5 : undefined}
+                />
               </div>
             )}
             <Hand width={width * 0.8} cards={boardCards} />
+            {(isPlayingCard || isDiscarding) && (
+              <Shade
+                onClick={() => {
+                  setIsPlayingCard(false);
+                  setIsDiscarding(false);
+                }}
+              />
+            )}
           </div>
-          <div>
+          <div
+            style={{
+              width: '300px',
+              backgroundColor: '#D9D9D9',
+              borderRadius: '0 0 15px 15px',
+              boxSizing: 'border-box',
+            }}
+          >
             <Hand width={width} cards={currentPlayerCards} hidden />
           </div>
+          {clueModalOpen && <Shade />}
         </div>
         <ClueModal
           playerHand={otherPlayerCards}
