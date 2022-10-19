@@ -20,7 +20,7 @@ const App = Client({
 
 const Multiplayer = () => (
   <div>
-    <h1>Multiplayer</h1>
+    <h1>2-player Hanabi</h1>
     <div className="runner" style={{ maxWidth: '600px' }}>
       <div className="run">
         <App matchID="multi" playerID="0" />
