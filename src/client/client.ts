@@ -17,6 +17,7 @@ import type Debug from './debug/Debug.svelte';
 import {
   CreateGameReducer,
   TransientHandlingMiddleware,
+  AsyncTurnCallMiddleware
 } from '../core/reducer';
 import { InitializeGame } from '../core/initialize';
 import { PlayerView } from '../plugins/main';
@@ -315,6 +316,7 @@ export class _ClientImpl<
 
     const middleware = applyMiddleware(
       TransientHandlingMiddleware,
+      AsyncTurnCallMiddleware,
       SubscriptionMiddleware,
       TransportMiddleware,
       LogMiddleware

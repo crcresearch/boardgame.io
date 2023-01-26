@@ -223,6 +223,35 @@ export const TransientHandlingMiddleware =
     }
   };
 
+
+/**
+ * Middleware for processing asynchronous turn calls associated with the turn.
+ * returned by TransientHandlingMiddleware.
+ * This should pretty much be used everywhere you want realistic state
+ * transitions and error handling.
+ */
+export const AsyncTurnCallMiddleware =
+(store: Store) =>
+(next: Dispatch<ActionShape.Any>) =>
+(action: ActionShape.Any) => {
+  const result = next(action);
+  switch (action.type) {
+    case Actions.STRIP_TRANSIENTS: {
+      return result;
+    }
+    default: {
+      console.log("AsyncTurnCallMiddleware")
+      console.log(action);
+      const [, transients] = ExtractTransients(store.getState());
+        return {
+          ...result,
+          transients,
+        };
+      return result;
+    }
+  }
+};
+
 /**
  * CreateGameReducer
  *

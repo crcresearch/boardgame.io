@@ -8,7 +8,8 @@
 
 import {
   CreateGameReducer,
-  TransientHandlingMiddleware,
+  TransientHandlingMiddleware, 
+  AsyncTurnCallMiddleware
 } from '../core/reducer';
 import { ProcessGameConfig, IsLongFormMove } from '../core/game';
 import { UNDO, REDO, MAKE_MOVE } from '../core/action-types';
@@ -199,7 +200,7 @@ export class Master {
     const reducer = CreateGameReducer({
       game: this.game,
     });
-    const middleware = applyMiddleware(TransientHandlingMiddleware);
+    const middleware = applyMiddleware(TransientHandlingMiddleware, AsyncTurnCallMiddleware);
     const store = createStore(reducer, state, middleware);
 
     // Only allow UNDO / REDO if there is exactly one player
